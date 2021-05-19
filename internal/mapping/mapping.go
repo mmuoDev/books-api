@@ -52,3 +52,19 @@ func ToDBBook(r pkg.BookRequest, aID string) internal.Book {
 	}
 
 }
+
+//ToDTOBooks maps internal books to DTO
+func ToDTOBooks(books []internal.Book) []pkg.BookRequest {
+	br := []pkg.BookRequest{}
+
+	for _, b := range books {
+		a := pkg.BookRequest{
+			Title:       b.Title,
+			Description: b.Description,
+			CoverImage:  b.CoverImage,
+			Price:       b.Price,
+		}
+		br = append(br, a)
+	}
+	return br
+}

@@ -3,9 +3,10 @@ package db
 import (
 	"books-api/internal"
 
-	"github.com/mmuoDev/commons/mongo"
+	mmuoMongo "github.com/mmuoDev/commons/mongo"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const (
@@ -25,10 +26,13 @@ type RetrieveAuthorByUsernameFunc func(username string) (internal.Author, error)
 //AddBookFunc adds a book
 type AddBookFunc func(internal.Book) error
 
+//RetrieveBooksFunc retrieves books for authenticated author
+type RetrieveBooksFunc func(aID string) ([]internal.Book, error)
+
 //AddAuthor adds an author to DB
-func AddAuthor(dbProvider mongo.DbProviderFunc) AddAuthorFunc {
+func AddAuthor(dbProvider mmuoMongo.DbProviderFunc) AddAuthorFunc {
 	return func(a internal.Author) error {
-		col := mongo.NewCollection(dbProvider, authorsCollection)
+		col := mmuoMongo.NewCollection(dbProvider, authorsCollection)
 		_, err := col.Insert(a)
 		if err != nil {
 			return errors.Wrap(err, "db - failure inserting an author")
@@ -38,9 +42,9 @@ func AddAuthor(dbProvider mongo.DbProviderFunc) AddAuthorFunc {
 }
 
 //RetrieveAuthorByID retrieves author by the author's id
-func RetrieveAuthorByID(dbProvider mongo.DbProviderFunc) RetrieveAuthorByIDFunc {
+func RetrieveAuthorByID(dbProvider mmuoMongo.DbProviderFunc) RetrieveAuthorByIDFunc {
 	return func(aid string) (internal.Author, error) {
-		col := mongo.NewCollection(dbProvider, authorsCollection)
+		col := mmuoMongo.NewCollection(dbProvider, authorsCollection)
 		var a internal.Author
 		if err := col.FindByID(aid, &a); err != nil {
 			return a, errors.Wrap(err, "db - failure retrieving author")
@@ -50,9 +54,9 @@ func RetrieveAuthorByID(dbProvider mongo.DbProviderFunc) RetrieveAuthorByIDFunc 
 }
 
 //RetrieveAuthorByUsername retrieves author by user
-func RetrieveAuthorByUsername(dbProvider mongo.DbProviderFunc) RetrieveAuthorByUsernameFunc {
+func RetrieveAuthorByUsername(dbProvider mmuoMongo.DbProviderFunc) RetrieveAuthorByUsernameFunc {
 	return func(username string) (internal.Author, error) {
-		col := mongo.NewCollection(dbProvider, authorsCollection)
+		col := mmuoMongo.NewCollection(dbProvider, authorsCollection)
 		filter := bson.D{{"username", username}}
 		var a internal.Author
 
@@ -64,13 +68,38 @@ func RetrieveAuthorByUsername(dbProvider mongo.DbProviderFunc) RetrieveAuthorByU
 }
 
 //AddBook adds an author to DB
-func AddBook(dbProvider mongo.DbProviderFunc) AddBookFunc {
+func AddBook(dbProvider mmuoMongo.DbProviderFunc) AddBookFunc {
 	return func(a internal.Book) error {
-		col := mongo.NewCollection(dbProvider, booksCollection)
+		col := mmuoMongo.NewCollection(dbProvider, booksCollection)
 		_, err := col.Insert(a)
 		if err != nil {
 			return errors.Wrap(err, "db - failure inserting a book")
 		}
 		return nil
+	}
+}
+
+//RetrieveBooks for authenticated user
+func RetrieveBooks(dbProvider mmuoMongo.DbProviderFunc) RetrieveBooksFunc {
+	return func(aID string) ([]internal.Book, error) {
+		col := mmuoMongo.NewCollection(dbProvider, booksCollection)
+		filter := bson.D{
+			{"author_id", aID},
+		}
+		books := []internal.Book{}
+		onEach := func(cur *mongo.Cursor) error {
+			b := internal.Book{}
+			err := cur.Decode(&b)
+			if err != nil {
+				return err
+			}
+			books = append(books, b)
+			return nil
+		}
+
+		if err := col.FindMulti(filter, onEach); err != nil {
+			return nil, errors.Wrapf(err, "db - failure retrieving books by authorID=%s", aID)
+		}
+		return books, nil
 	}
 }

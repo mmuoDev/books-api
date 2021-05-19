@@ -61,3 +61,22 @@ func AddBookHandler(addBook db.AddBookFunc) http.HandlerFunc {
 		w.WriteHeader(http.StatusCreated)
 	}
 }
+
+//RetrieveBooksHandler returns a http request to add a book
+func RetrieveBooksHandler(retrieveBooks db.RetrieveBooksFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		//get author
+		token, err := internal.GetTokenMetaData(r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+		}
+		aID := token.UserID
+		retrieve := workflow.RetrieveBooks(retrieveBooks)
+		books, err := retrieve(aID)
+		if err != nil {
+			httputils.ServeError(err, w)
+			return
+		}
+		httputils.ServeJSON(books, w)
+	}
+}
