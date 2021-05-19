@@ -18,6 +18,9 @@ type AddAuthorFunc func(r pkg.AuthorRequest) error
 //AuthenticateFunc authenticates a user
 type AuthenticateFunc func(r pkg.AuthRequest) (pkg.Auth, error)
 
+//AddBookFunc adds a book for an author
+type AddBookFunc func(r pkg.BookRequest, aID string) error 
+
 //AddAuthor adds an author
 func AddAuthor(addAuthor db.AddAuthorFunc) AddAuthorFunc {
 	return func(r pkg.AuthorRequest) error {
@@ -49,6 +52,17 @@ func Authenticate(retriveAuthor db.RetrieveAuthorByUsernameFunc) AuthenticateFun
 			return pkg.Auth{}, pkgErr.Wrap(err, "Workflow - Unable to generate tokens")
 		}
 		return mapping.ToAuth(t, aID), nil
+	}
+}
+
+//AddBook adds a book
+func AddBook(addBook db.AddBookFunc) AddBookFunc {
+	return func(r pkg.BookRequest, aID string) error {
+		b := mapping.ToDBBook(r, aID)
+		if err := addBook(b); err != nil {
+			return pkgErr.Wrap(err, "Workflow - error adding new book")
+		}
+		return nil
 	}
 }
 

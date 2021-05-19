@@ -39,3 +39,16 @@ func ToAuth(t *internal.Token, aID string) pkg.Auth {
 		AccessToken: t.Access,
 	}
 }
+
+//ToDBBook maps book request to internal book
+func ToDBBook(r pkg.BookRequest, aID string) internal.Book {
+	return internal.Book{
+		ID:          uuid.GenV4(),
+		AuthorID:    aID,
+		Title:       r.Title,
+		Description: r.Description,
+		CoverImage:  r.CoverImage,
+		Price:       r.Price,
+	}
+
+}

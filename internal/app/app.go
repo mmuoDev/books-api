@@ -12,6 +12,7 @@ import (
 type App struct {
 	AddAuthorHandler    http.HandlerFunc
 	AuthenticateHandler http.HandlerFunc
+	AddBookHandler      http.HandlerFunc
 }
 
 //Handler returns the main handler for this application
@@ -19,6 +20,8 @@ func (a App) Handler() http.HandlerFunc {
 	router := httprouter.New()
 
 	router.HandlerFunc(http.MethodPost, "/authors", a.AddAuthorHandler)
+	router.HandlerFunc(http.MethodPost, "/books", a.AddBookHandler)
+
 	router.HandlerFunc(http.MethodPost, "/auth", a.AuthenticateHandler)
 
 	return http.HandlerFunc(router.ServeHTTP)
@@ -31,6 +34,7 @@ type Options func(o *Option)
 type Option struct {
 	AddAuthor                db.AddAuthorFunc
 	RetrieveAuthorByUsername db.RetrieveAuthorByUsernameFunc
+	AddBook                  db.AddBookFunc
 }
 
 //New creates a new instance of the App
@@ -38,6 +42,7 @@ func New(dbProvider mongo.DbProviderFunc, options ...Options) App {
 	o := Option{
 		AddAuthor:                db.AddAuthor(dbProvider),
 		RetrieveAuthorByUsername: db.RetrieveAuthorByUsername(dbProvider),
+		AddBook:                  db.AddBook(dbProvider),
 	}
 
 	for _, option := range options {
@@ -46,9 +51,11 @@ func New(dbProvider mongo.DbProviderFunc, options ...Options) App {
 
 	addAuthor := AddAuthorHandler(o.AddAuthor)
 	authenticate := AuthenticateHandler(o.RetrieveAuthorByUsername)
+	addBook := AddBookHandler(o.AddBook)
 
 	return App{
 		AddAuthorHandler:    addAuthor,
 		AuthenticateHandler: authenticate,
+		AddBookHandler:      addBook,
 	}
 }

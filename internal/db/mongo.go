@@ -22,6 +22,9 @@ type RetrieveAuthorByIDFunc func(aid string) (internal.Author, error)
 //RetrieveAuthorByUsernameFunc retrieves an author by username
 type RetrieveAuthorByUsernameFunc func(username string) (internal.Author, error)
 
+//AddBookFunc adds a book
+type AddBookFunc func(internal.Book) error
+
 //AddAuthor adds an author to DB
 func AddAuthor(dbProvider mongo.DbProviderFunc) AddAuthorFunc {
 	return func(a internal.Author) error {
@@ -57,5 +60,17 @@ func RetrieveAuthorByUsername(dbProvider mongo.DbProviderFunc) RetrieveAuthorByU
 			return internal.Author{}, errors.Wrapf(err, "db - author not found")
 		}
 		return a, nil
+	}
+}
+
+//AddBook adds an author to DB
+func AddBook(dbProvider mongo.DbProviderFunc) AddBookFunc {
+	return func(a internal.Book) error {
+		col := mongo.NewCollection(dbProvider, booksCollection)
+		_, err := col.Insert(a)
+		if err != nil {
+			return errors.Wrap(err, "db - failure inserting a book")
+		}
+		return nil
 	}
 }

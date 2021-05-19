@@ -13,8 +13,9 @@ type Author struct {
 }
 
 //Book is the internal representation of a book
-type BookRequest struct {
-	AuthorID    uuid.V4 `bson:"id"`
+type Book struct {
+	ID          uuid.V4 `bson:"id"`
+	AuthorID    string  `bson:"author_id"`
 	Title       string  `bson:"title"`
 	Description string  `bson:"description"`
 	CoverImage  string  `bson:"coverImage"`

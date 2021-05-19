@@ -1,6 +1,7 @@
 package app
 
 import (
+	"books-api/internal"
 	"books-api/internal/db"
 	"books-api/internal/workflow"
 	"books-api/pkg"
@@ -38,5 +39,25 @@ func AuthenticateHandler(retrieveAuthor db.RetrieveAuthorByUsernameFunc) http.Ha
 			return
 		}
 		httputils.ServeJSON(u, w)
+	}
+}
+
+//AddBookHandler returns a http request to add a book
+func AddBookHandler(addBook db.AddBookFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var br pkg.BookRequest
+		httputils.JSONToDTO(&br, w, r)
+		//get author
+		token, err := internal.GetTokenMetaData(r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+		}
+		aID := token.UserID
+		add := workflow.AddBook(addBook)
+		if err := add(br, aID); err != nil {
+			httputils.ServeError(err, w)
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
 	}
 }
