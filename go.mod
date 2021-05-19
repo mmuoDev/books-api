@@ -3,8 +3,10 @@ module books-api
 go 1.15
 
 require (
+	github.com/Esusu2017/rrs-commons v0.0.0-20210517213524-776fd15bf1af
 	github.com/aws/aws-sdk-go v1.38.43 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/gorilla/schema v1.2.0
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/klauspost/compress v1.12.2 // indirect
 	github.com/mmuoDev/commons v0.0.0-20210517210845-7155607834d0

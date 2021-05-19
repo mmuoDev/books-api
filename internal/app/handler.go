@@ -6,9 +6,13 @@ import (
 	"books-api/internal/workflow"
 	"books-api/pkg"
 	"net/http"
+	"reflect"
 
+	"github.com/Esusu2017/rrs-commons/time"
+	"github.com/gorilla/schema"
 	"github.com/julienschmidt/httprouter"
 	"github.com/mmuoDev/commons/httputils"
+	"github.com/pkg/errors"
 )
 
 //AddAuthorHandler returns a http request to add an author
@@ -66,9 +70,13 @@ func AddBookHandler(addBook db.AddBookFunc) http.HandlerFunc {
 //RetrieveBooksHandler returns a http request to retrieve books
 func RetrieveBooksHandler(retrieveBooks db.RetrieveBooksFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-	
+		var params pkg.QueryParams
+		if err := GetQueryParams(&params, r); err != nil {
+			httputils.ServeError(err, w)
+			return
+		}
 		retrieve := workflow.RetrieveBooks(retrieveBooks)
-		books, err := retrieve()
+		books, err := retrieve(params)
 		if err != nil {
 			httputils.ServeError(err, w)
 			return
@@ -77,6 +85,7 @@ func RetrieveBooksHandler(retrieveBooks db.RetrieveBooksFunc) http.HandlerFunc {
 	}
 }
 
+//DeleteBookByIDHandler deletes a book by id
 func DeleteBookByIDHandler(deleteBook db.DeleteBookByIDFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, err := internal.GetTokenMetaData(r)
@@ -93,4 +102,48 @@ func DeleteBookByIDHandler(deleteBook db.DeleteBookByIDFunc) http.HandlerFunc {
 		}
 		w.WriteHeader(http.StatusOK)
 	}
+}
+
+var decoder = schema.NewDecoder()
+
+// GetQueryParams maps the query params from an http request into an interface
+func GetQueryParams(value interface{}, r *http.Request) error {
+	// decoder lookup for values on the json tag, instead of the default schema tag
+	decoder.SetAliasTag("json")
+
+	var globalErr error
+
+	// Decoder Register for custom type ISO8601
+	decoder.RegisterConverter(time.ISO8601{}, func(input string) reflect.Value {
+		ISOTime, errISO := time.NewISO8601(input)
+
+		if errISO != nil {
+			globalErr = errors.Wrapf(errISO, "handler - invalid iso time provided")
+			return reflect.ValueOf(time.ISO8601{})
+		}
+
+		return reflect.ValueOf(ISOTime)
+	})
+
+	// Decoder Register for custom type Epoch
+	decoder.RegisterConverter(time.Epoch(0), func(input string) reflect.Value {
+		ISOTime, errISO := time.NewISO8601(input)
+
+		if errISO != nil {
+			globalErr = errors.Wrapf(errISO, "handler - invalid iso time provided")
+			return reflect.ValueOf(time.ISO8601{}.ToEpoch())
+		}
+
+		return reflect.ValueOf(ISOTime.ToEpoch())
+	})
+
+	if err := decoder.Decode(value, r.URL.Query()); err != nil {
+		return errors.Wrapf(err, "handler - failed to decode query params")
+	}
+
+	if globalErr != nil {
+		return globalErr
+	}
+
+	return nil
 }

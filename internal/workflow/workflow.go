@@ -22,7 +22,7 @@ type AuthenticateFunc func(r pkg.AuthRequest) (pkg.Auth, error)
 type AddBookFunc func(r pkg.BookRequest, aID string) error 
 
 //RetrieveBooksFunc retrieves books
-type RetrieveBooksFunc func() ([]pkg.BookRequest, error)
+type RetrieveBooksFunc func(params pkg.QueryParams) ([]pkg.BookRequest, error)
 
 //DeleteBookByIDFunc deletes a book by id
 type DeleteBookByIDFunc func(aID, bID string) error
@@ -74,8 +74,8 @@ func AddBook(addBook db.AddBookFunc) AddBookFunc {
 
 //RetrieveBooks retrieves books 
 func RetrieveBooks(retrieve db.RetrieveBooksFunc) RetrieveBooksFunc {
-	return func() ([]pkg.BookRequest, error) {
-		books, err := retrieve()
+	return func(params pkg.QueryParams) ([]pkg.BookRequest, error) {
+		books, err := retrieve(params)
 		if err != nil {
 			return []pkg.BookRequest{}, pkgErr.Wrap(err, "Workflow - error retrieving books")
 		}

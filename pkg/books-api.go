@@ -26,3 +26,8 @@ type Auth struct {
 	AuthorID    string `json:"author_id"`
 	AccessToken string `json:"access_token"`
 }
+
+// QueryParams represents query params for filtering
+type QueryParams struct {
+	Title string `json:"title"`
+}

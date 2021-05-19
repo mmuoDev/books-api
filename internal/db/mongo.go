@@ -2,6 +2,7 @@ package db
 
 import (
 	"books-api/internal"
+	"books-api/pkg"
 
 	mmuoMongo "github.com/mmuoDev/commons/mongo"
 	"github.com/pkg/errors"
@@ -27,7 +28,7 @@ type RetrieveAuthorByUsernameFunc func(username string) (internal.Author, error)
 type AddBookFunc func(internal.Book) error
 
 //RetrieveBooksFunc retrieves books
-type RetrieveBooksFunc func() ([]internal.Book, error)
+type RetrieveBooksFunc func(params pkg.QueryParams) ([]internal.Book, error)
 
 //DeleteBookByIDFunc deletes a book by id
 type DeleteBookByIDFunc func(aID, bID string) error
@@ -84,9 +85,13 @@ func AddBook(dbProvider mmuoMongo.DbProviderFunc) AddBookFunc {
 
 //RetrieveBooks for authenticated user
 func RetrieveBooks(dbProvider mmuoMongo.DbProviderFunc) RetrieveBooksFunc {
-	return func() ([]internal.Book, error) {
+	return func(params pkg.QueryParams) ([]internal.Book, error) {
 		col := mmuoMongo.NewCollection(dbProvider, booksCollection)
-		filter := bson.D{}
+		filter := bson.M{}
+
+		if params.Title != "" {
+			filter = bson.M{"title": params.Title}
+		}
 
 		books := []internal.Book{}
 		onEach := func(cur *mongo.Cursor) error {
