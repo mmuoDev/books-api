@@ -26,8 +26,8 @@ type RetrieveAuthorByUsernameFunc func(username string) (internal.Author, error)
 //AddBookFunc adds a book
 type AddBookFunc func(internal.Book) error
 
-//RetrieveBooksFunc retrieves books for authenticated author
-type RetrieveBooksFunc func(aID string) ([]internal.Book, error)
+//RetrieveBooksFunc retrieves books
+type RetrieveBooksFunc func() ([]internal.Book, error)
 
 //DeleteBookByIDFunc deletes a book by id
 type DeleteBookByIDFunc func(aID, bID string) error
@@ -84,11 +84,10 @@ func AddBook(dbProvider mmuoMongo.DbProviderFunc) AddBookFunc {
 
 //RetrieveBooks for authenticated user
 func RetrieveBooks(dbProvider mmuoMongo.DbProviderFunc) RetrieveBooksFunc {
-	return func(aID string) ([]internal.Book, error) {
+	return func() ([]internal.Book, error) {
 		col := mmuoMongo.NewCollection(dbProvider, booksCollection)
-		filter := bson.D{
-			{"author_id", aID},
-		}
+		filter := bson.D{}
+
 		books := []internal.Book{}
 		onEach := func(cur *mongo.Cursor) error {
 			b := internal.Book{}
@@ -101,7 +100,7 @@ func RetrieveBooks(dbProvider mmuoMongo.DbProviderFunc) RetrieveBooksFunc {
 		}
 
 		if err := col.FindMulti(filter, onEach); err != nil {
-			return nil, errors.Wrapf(err, "db - failure retrieving books by authorID=%s", aID)
+			return nil, errors.Wrapf(err, "db - failure retrieving books")
 		}
 		return books, nil
 	}

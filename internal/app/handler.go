@@ -63,17 +63,12 @@ func AddBookHandler(addBook db.AddBookFunc) http.HandlerFunc {
 	}
 }
 
-//RetrieveBooksHandler returns a http request to add a book
+//RetrieveBooksHandler returns a http request to retrieve books
 func RetrieveBooksHandler(retrieveBooks db.RetrieveBooksFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		//get author
-		token, err := internal.GetTokenMetaData(r)
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-		}
-		aID := token.UserID
+	
 		retrieve := workflow.RetrieveBooks(retrieveBooks)
-		books, err := retrieve(aID)
+		books, err := retrieve()
 		if err != nil {
 			httputils.ServeError(err, w)
 			return

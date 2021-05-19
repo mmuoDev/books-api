@@ -21,8 +21,8 @@ type AuthenticateFunc func(r pkg.AuthRequest) (pkg.Auth, error)
 //AddBookFunc adds a book for an author
 type AddBookFunc func(r pkg.BookRequest, aID string) error 
 
-//RetrieveBooksFunc retrieves books for authenticated user
-type RetrieveBooksFunc func(aID string) ([]pkg.BookRequest, error)
+//RetrieveBooksFunc retrieves books
+type RetrieveBooksFunc func() ([]pkg.BookRequest, error)
 
 //DeleteBookByIDFunc deletes a book by id
 type DeleteBookByIDFunc func(aID, bID string) error
@@ -72,12 +72,12 @@ func AddBook(addBook db.AddBookFunc) AddBookFunc {
 	}
 }
 
-//RetrieveBooks retrieves books for an authenticated user
+//RetrieveBooks retrieves books 
 func RetrieveBooks(retrieve db.RetrieveBooksFunc) RetrieveBooksFunc {
-	return func(aID string) ([]pkg.BookRequest, error) {
-		books, err := retrieve(aID)
+	return func() ([]pkg.BookRequest, error) {
+		books, err := retrieve()
 		if err != nil {
-			return []pkg.BookRequest{}, pkgErr.Wrapf(err, "Workflow - error retrieving books for authorID=%s", aID)
+			return []pkg.BookRequest{}, pkgErr.Wrap(err, "Workflow - error retrieving books")
 		}
 		return mapping.ToDTOBooks(books), nil
 	}
