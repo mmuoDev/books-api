@@ -29,6 +29,9 @@ type AddBookFunc func(internal.Book) error
 //RetrieveBooksFunc retrieves books for authenticated author
 type RetrieveBooksFunc func(aID string) ([]internal.Book, error)
 
+//DeleteBookByIDFunc deletes a book by id
+type DeleteBookByIDFunc func(aID, bID string) error
+
 //AddAuthor adds an author to DB
 func AddAuthor(dbProvider mmuoMongo.DbProviderFunc) AddAuthorFunc {
 	return func(a internal.Author) error {
@@ -101,5 +104,20 @@ func RetrieveBooks(dbProvider mmuoMongo.DbProviderFunc) RetrieveBooksFunc {
 			return nil, errors.Wrapf(err, "db - failure retrieving books by authorID=%s", aID)
 		}
 		return books, nil
+	}
+}
+
+//DeleteBookByID deletes a book by id
+func DeleteBookByID(dbProvider mmuoMongo.DbProviderFunc) DeleteBookByIDFunc {
+	return func(aID, bID string) error {
+		col := mmuoMongo.NewCollection(dbProvider, booksCollection)
+		filter := bson.D{
+			{"author_id", aID},
+			{"id", bID},
+		}
+		if err := col.DeleteMany(filter); err != nil {
+			errors.Wrapf(err, "db - failure deleting book with id=%s by authorID=%s", bID, aID)
+		}
+		return nil
 	}
 }

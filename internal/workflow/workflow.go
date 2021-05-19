@@ -24,6 +24,9 @@ type AddBookFunc func(r pkg.BookRequest, aID string) error
 //RetrieveBooksFunc retrieves books for authenticated user
 type RetrieveBooksFunc func(aID string) ([]pkg.BookRequest, error)
 
+//DeleteBookByIDFunc deletes a book by id
+type DeleteBookByIDFunc func(aID, bID string) error
+
 //AddAuthor adds an author
 func AddAuthor(addAuthor db.AddAuthorFunc) AddAuthorFunc {
 	return func(r pkg.AuthorRequest) error {
@@ -77,6 +80,16 @@ func RetrieveBooks(retrieve db.RetrieveBooksFunc) RetrieveBooksFunc {
 			return []pkg.BookRequest{}, pkgErr.Wrapf(err, "Workflow - error retrieving books for authorID=%s", aID)
 		}
 		return mapping.ToDTOBooks(books), nil
+	}
+}
+
+//DeleteBookByID deletes book by id for authenticated user
+func DeleteBookByID (delete db.DeleteBookByIDFunc) DeleteBookByIDFunc {
+	return func(aID, bID string) error {
+		if err := delete(aID, bID); err != nil {
+			return pkgErr.Wrapf(err, "workflow - error deleting book with id=%s by authorID=%s", bID, aID)
+		}
+		return nil 
 	}
 }
 

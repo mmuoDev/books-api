@@ -7,6 +7,7 @@ import (
 	"books-api/pkg"
 	"net/http"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/mmuoDev/commons/httputils"
 )
 
@@ -78,5 +79,23 @@ func RetrieveBooksHandler(retrieveBooks db.RetrieveBooksFunc) http.HandlerFunc {
 			return
 		}
 		httputils.ServeJSON(books, w)
+	}
+}
+
+func DeleteBookByIDHandler(deleteBook db.DeleteBookByIDFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token, err := internal.GetTokenMetaData(r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+		}
+		aID := token.UserID
+		params := httprouter.ParamsFromContext(r.Context())
+		bID := params.ByName(bookID)
+		delete := workflow.DeleteBookByID(deleteBook)
+		if err := delete(aID, bID); err != nil {
+			httputils.ServeError(err, w)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	}
 }
