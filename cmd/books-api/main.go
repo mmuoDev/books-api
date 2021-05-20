@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -6,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"books-api/internal/app"
 
@@ -14,7 +14,7 @@ import (
 
 func main() {
 
-	port := "9000"
+	port := os.Getenv("MONGO_PORT")
 	provideMongoDB, err := mongo.NewConfigFromEnvVars().ToProvider(context.Background())
 	if err != nil {
 		log.Fatal(err)

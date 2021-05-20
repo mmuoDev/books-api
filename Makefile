@@ -1,5 +1,4 @@
 OUTPUT = main 
-VERSION = 0.1
 SERVICE_NAME = books-api
 
 .PHONY: test
@@ -11,7 +10,7 @@ build-local:
 
 run: build-local
 	@echo ">> Running application ..."
-	RRS_PORT=7565 \
+	MONGO_PORT=9000 \
 	MONGO_DB_NAME=test \
 	MONGO_URL=mongodb://localhost:27017 \
 	JWT_ACCESS_SECRET=T52N6pRxNZDW45UR \
