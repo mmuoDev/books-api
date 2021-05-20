@@ -15,11 +15,12 @@ const (
 
 //App contains handlers for the app
 type App struct {
-	AddAuthorHandler      http.HandlerFunc
-	AuthenticateHandler   http.HandlerFunc
-	AddBookHandler        http.HandlerFunc
-	RetrieveBooksHandler  http.HandlerFunc
-	DeleteBookByIDHandler http.HandlerFunc
+	AddAuthorHandler        http.HandlerFunc
+	AuthenticateHandler     http.HandlerFunc
+	AddBookHandler          http.HandlerFunc
+	RetrieveBooksHandler    http.HandlerFunc
+	DeleteBookByIDHandler   http.HandlerFunc
+	RetrieveBookByIDHandler http.HandlerFunc
 }
 
 //Handler returns the main handler for this application
@@ -30,6 +31,7 @@ func (a App) Handler() http.HandlerFunc {
 	router.HandlerFunc(http.MethodPost, "/books", a.AddBookHandler)
 	router.HandlerFunc(http.MethodGet, "/books", a.RetrieveBooksHandler)
 	router.HandlerFunc(http.MethodDelete, fmt.Sprintf("/books/:%s", bookID), a.DeleteBookByIDHandler)
+	router.HandlerFunc(http.MethodGet, fmt.Sprintf("/books/:%s", bookID), a.RetrieveBookByIDHandler)
 
 	router.HandlerFunc(http.MethodPost, "/auth", a.AuthenticateHandler)
 
@@ -46,6 +48,8 @@ type Option struct {
 	AddBook                  db.AddBookFunc
 	RetrieveBooks            db.RetrieveBooksFunc
 	DeleteBookByID           db.DeleteBookByIDFunc
+	RetrieveAuthor           db.RetrieveAuthorByIDFunc
+	RetrieveBookByID         db.RetrieveBookByIDFunc
 }
 
 //New creates a new instance of the App
@@ -56,6 +60,8 @@ func New(dbProvider mongo.DbProviderFunc, options ...Options) App {
 		AddBook:                  db.AddBook(dbProvider),
 		RetrieveBooks:            db.RetrieveBooks(dbProvider),
 		DeleteBookByID:           db.DeleteBookByID(dbProvider),
+		RetrieveAuthor:           db.RetrieveAuthorByID(dbProvider),
+		RetrieveBookByID:         db.RetrieveBookByID(dbProvider),
 	}
 
 	for _, option := range options {
@@ -65,14 +71,16 @@ func New(dbProvider mongo.DbProviderFunc, options ...Options) App {
 	addAuthor := AddAuthorHandler(o.AddAuthor)
 	authenticate := AuthenticateHandler(o.RetrieveAuthorByUsername)
 	addBook := AddBookHandler(o.AddBook)
-	retrieveBooks := RetrieveBooksHandler(o.RetrieveBooks)
+	retrieveBooks := RetrieveBooksHandler(o.RetrieveBooks, o.RetrieveAuthor)
 	deleteBookByID := DeleteBookByIDHandler(o.DeleteBookByID)
+	retrieveBookByID := RetrieveBookByIDHandler(o.RetrieveBookByID, o.RetrieveAuthor)
 
 	return App{
-		AddAuthorHandler:      addAuthor,
-		AuthenticateHandler:   authenticate,
-		AddBookHandler:        addBook,
-		RetrieveBooksHandler:  retrieveBooks,
-		DeleteBookByIDHandler: deleteBookByID,
+		AddAuthorHandler:        addAuthor,
+		AuthenticateHandler:     authenticate,
+		AddBookHandler:          addBook,
+		RetrieveBooksHandler:    retrieveBooks,
+		DeleteBookByIDHandler:   deleteBookByID,
+		RetrieveBookByIDHandler: retrieveBookByID,
 	}
 }

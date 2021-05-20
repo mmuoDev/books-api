@@ -33,6 +33,9 @@ type RetrieveBooksFunc func(params pkg.QueryParams) ([]internal.Book, error)
 //DeleteBookByIDFunc deletes a book by id
 type DeleteBookByIDFunc func(aID, bID string) error
 
+//RetrieveBookByIDFunc retrieves a book by id
+type RetrieveBookByIDFunc func(bID string) (internal.Book, error)
+
 //AddAuthor adds an author to DB
 func AddAuthor(dbProvider mmuoMongo.DbProviderFunc) AddAuthorFunc {
 	return func(a internal.Author) error {
@@ -42,6 +45,18 @@ func AddAuthor(dbProvider mmuoMongo.DbProviderFunc) AddAuthorFunc {
 			return errors.Wrap(err, "db - failure inserting an author")
 		}
 		return nil
+	}
+}
+
+//RetrieveBookByID retrieves book by id
+func RetrieveBookByID(dbProvider mmuoMongo.DbProviderFunc) RetrieveBookByIDFunc {
+	return func(bID string) (internal.Book, error) {
+		col := mmuoMongo.NewCollection(dbProvider, booksCollection)
+		var b internal.Book
+		if err := col.FindByID(bID, &b); err != nil {
+			return b, errors.Wrap(err, "db - failure retrieving book")
+		}
+		return b, nil
 	}
 }
 

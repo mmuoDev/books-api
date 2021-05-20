@@ -2,6 +2,7 @@ package mapping
 
 import (
 	"books-api/internal"
+	"books-api/internal/db"
 	"books-api/pkg"
 
 	"github.com/mmuoDev/commons/uuid"
@@ -54,17 +55,30 @@ func ToDBBook(r pkg.BookRequest, aID string) internal.Book {
 }
 
 //ToDTOBooks maps internal books to DTO
-func ToDTOBooks(books []internal.Book) []pkg.BookRequest {
-	br := []pkg.BookRequest{}
+func ToDTOBooks(books []internal.Book, author db.RetrieveAuthorByIDFunc) []pkg.Book {
+	br := []pkg.Book{}
 
 	for _, b := range books {
-		a := pkg.BookRequest{
+		a, _ := author(b.AuthorID)
+		bk := pkg.Book{
 			Title:       b.Title,
 			Description: b.Description,
 			CoverImage:  b.CoverImage,
 			Price:       b.Price,
+			Author:      a.Pseudonym,
 		}
-		br = append(br, a)
+		br = append(br, bk)
 	}
 	return br
+}
+
+//ToDTOBooks maps internal book to DTO
+func ToDTOBook(b internal.Book, author string) pkg.Book {
+	return pkg.Book{
+		Title:       b.Title,
+		Description: b.Description,
+		CoverImage:  b.CoverImage,
+		Price:       b.Price,
+		Author:      author,
+	}
 }

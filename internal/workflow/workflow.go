@@ -19,13 +19,16 @@ type AddAuthorFunc func(r pkg.AuthorRequest) error
 type AuthenticateFunc func(r pkg.AuthRequest) (pkg.Auth, error)
 
 //AddBookFunc adds a book for an author
-type AddBookFunc func(r pkg.BookRequest, aID string) error 
+type AddBookFunc func(r pkg.BookRequest, aID string) error
 
 //RetrieveBooksFunc retrieves books
-type RetrieveBooksFunc func(params pkg.QueryParams) ([]pkg.BookRequest, error)
+type RetrieveBooksFunc func(params pkg.QueryParams) ([]pkg.Book, error)
 
 //DeleteBookByIDFunc deletes a book by id
 type DeleteBookByIDFunc func(aID, bID string) error
+
+//RetrieveBookByIDFunc retrieves book by id
+type RetrieveBookByIDFunc func(bID string) (pkg.Book, error)
 
 //AddAuthor adds an author
 func AddAuthor(addAuthor db.AddAuthorFunc) AddAuthorFunc {
@@ -72,24 +75,36 @@ func AddBook(addBook db.AddBookFunc) AddBookFunc {
 	}
 }
 
-//RetrieveBooks retrieves books 
-func RetrieveBooks(retrieve db.RetrieveBooksFunc) RetrieveBooksFunc {
-	return func(params pkg.QueryParams) ([]pkg.BookRequest, error) {
+//RetrieveBooks retrieves books
+func RetrieveBooks(retrieve db.RetrieveBooksFunc, retrieveAuthor db.RetrieveAuthorByIDFunc) RetrieveBooksFunc {
+	return func(params pkg.QueryParams) ([]pkg.Book, error) {
 		books, err := retrieve(params)
 		if err != nil {
-			return []pkg.BookRequest{}, pkgErr.Wrap(err, "Workflow - error retrieving books")
+			return []pkg.Book{}, pkgErr.Wrap(err, "Workflow - error retrieving books")
 		}
-		return mapping.ToDTOBooks(books), nil
+		return mapping.ToDTOBooks(books, retrieveAuthor), nil
 	}
 }
 
 //DeleteBookByID deletes book by id for authenticated user
-func DeleteBookByID (delete db.DeleteBookByIDFunc) DeleteBookByIDFunc {
+func DeleteBookByID(delete db.DeleteBookByIDFunc) DeleteBookByIDFunc {
 	return func(aID, bID string) error {
 		if err := delete(aID, bID); err != nil {
 			return pkgErr.Wrapf(err, "workflow - error deleting book with id=%s by authorID=%s", bID, aID)
 		}
-		return nil 
+		return nil
+	}
+}
+
+//RetrieveBookByID retrieves book by id
+func RetrieveBookByID(retrieve db.RetrieveBookByIDFunc, retrieveAuthor db.RetrieveAuthorByIDFunc) RetrieveBookByIDFunc {
+	return func(bID string) (pkg.Book, error) {
+		b, err := retrieve(bID)
+		if err != nil {
+			return pkg.Book{}, pkgErr.Wrapf(err, "Workflow - error retrieving book with id=%s", bID)
+		}
+		a, _ := retrieveAuthor(b.AuthorID)
+		return mapping.ToDTOBook(b, a.Pseudonym), nil
 	}
 }
 

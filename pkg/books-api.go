@@ -21,6 +21,15 @@ type BookRequest struct {
 	Price       float64 `json:"price"`
 }
 
+//Book represent details for a book
+type Book struct {
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	CoverImage  string  `json:"coverImage"`
+	Price       float64 `json:"price"`
+	Author      string  `json:"author"`
+}
+
 //Auth represents data after successful authentication
 type Auth struct {
 	AuthorID    string `json:"author_id"`

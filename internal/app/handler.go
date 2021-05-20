@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/Esusu2017/rrs-commons/time"
 	"github.com/gorilla/schema"
 	"github.com/julienschmidt/httprouter"
 	"github.com/mmuoDev/commons/httputils"
+	"github.com/mmuoDev/commons/time"
 	"github.com/pkg/errors"
 )
 
@@ -68,14 +68,14 @@ func AddBookHandler(addBook db.AddBookFunc) http.HandlerFunc {
 }
 
 //RetrieveBooksHandler returns a http request to retrieve books
-func RetrieveBooksHandler(retrieveBooks db.RetrieveBooksFunc) http.HandlerFunc {
+func RetrieveBooksHandler(retrieveBooks db.RetrieveBooksFunc, retrieveAuthor db.RetrieveAuthorByIDFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var params pkg.QueryParams
 		if err := GetQueryParams(&params, r); err != nil {
 			httputils.ServeError(err, w)
 			return
 		}
-		retrieve := workflow.RetrieveBooks(retrieveBooks)
+		retrieve := workflow.RetrieveBooks(retrieveBooks, retrieveAuthor)
 		books, err := retrieve(params)
 		if err != nil {
 			httputils.ServeError(err, w)
@@ -101,6 +101,22 @@ func DeleteBookByIDHandler(deleteBook db.DeleteBookByIDFunc) http.HandlerFunc {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
+	}
+}
+
+//RetrieveBookByIDHandler retriees a book by id
+func RetrieveBookByIDHandler(retrieveBook db.RetrieveBookByIDFunc, retrieveAuthor db.RetrieveAuthorByIDFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		retrieve := workflow.RetrieveBookByID(retrieveBook, retrieveAuthor)
+		params := httprouter.ParamsFromContext(r.Context())
+		bID := params.ByName(bookID)
+		book, err := retrieve(bID)
+		if err != nil {
+			httputils.ServeError(err, w)
+			return
+		}
+		httputils.ServeJSON(book, w)
 	}
 }
 
