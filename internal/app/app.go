@@ -39,10 +39,10 @@ func (a App) Handler() http.HandlerFunc {
 }
 
 // Options is a type for application options to modify the app
-type Options func(o *Option)
+type Options func(o *OptionalArgs)
 
 // /OptionalArgs optional arguments for this application
-type Option struct {
+type OptionalArgs struct {
 	AddAuthor                db.AddAuthorFunc
 	RetrieveAuthorByUsername db.RetrieveAuthorByUsernameFunc
 	AddBook                  db.AddBookFunc
@@ -54,7 +54,7 @@ type Option struct {
 
 //New creates a new instance of the App
 func New(dbProvider mongo.DbProviderFunc, options ...Options) App {
-	o := Option{
+	o := OptionalArgs{
 		AddAuthor:                db.AddAuthor(dbProvider),
 		RetrieveAuthorByUsername: db.RetrieveAuthorByUsername(dbProvider),
 		AddBook:                  db.AddBook(dbProvider),
