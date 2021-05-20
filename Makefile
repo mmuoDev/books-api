@@ -2,6 +2,10 @@ OUTPUT = main
 VERSION = 0.1
 SERVICE_NAME = books-api
 
+.PHONY: test
+test:
+	go test ./...
+
 build-local:
 	go build -o $(OUTPUT) ./cmd/$(SERVICE_NAME)/main.go
 
