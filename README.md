@@ -25,4 +25,8 @@ $ make run
 ``` bash
 $ make test
 ```  
+## More details
 
+These endpoints require the bearer token generated during authenticattion
+- Add Book
+- Delete Book
