@@ -12,6 +12,8 @@ This is a books API written with Golang
 - Add Book
 - Retrieve Books (with query params)
 - Delete Book
+- Update a Book
+- Get a Book
 
 ## Usage
 Clone project and `cd` into project foler
