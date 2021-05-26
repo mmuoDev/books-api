@@ -1,0 +1,280 @@
+{
+	"info": {
+		"_postman_id": "7bbd5175-a923-423c-9ed8-49a0656854ec",
+		"name": "books api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authenticate an Author",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-MultiTenantKey",
+						"value": "helen",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"mmuo\",\n    \"password\": \"password\"\n    \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9000/auth",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add an Author",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MjIwMzM1MDcsInVzZXJfaWQiOiIyNmE0ZTQwYi1mMzEyLTQ1YjAtYTM3YS04MmZhN2IyYjBmYTIifQ.3oV6m-dL7TGVN3zhiMl5rDncB4wESXo0FNtdKCMbHmc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"pseudonym\": \"mmuo\",\n    \"username\": \"dev\",\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9000/authors",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"authors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Book",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MjIwMzM1MDcsInVzZXJfaWQiOiIyNmE0ZTQwYi1mMzEyLTQ1YjAtYTM3YS04MmZhN2IyYjBmYTIifQ.3oV6m-dL7TGVN3zhiMl5rDncB4wESXo0FNtdKCMbHmc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"pasuma books\",\n    \"description\": \"a novel of German ancient houses\",\n    \"coverimage\": \"https://google.com\",\n    \"price\": 600\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9000/books",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Books",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MjIwMzM1MDcsInVzZXJfaWQiOiIyNmE0ZTQwYi1mMzEyLTQ1YjAtYTM3YS04MmZhN2IyYjBmYTIifQ.3oV6m-dL7TGVN3zhiMl5rDncB4wESXo0FNtdKCMbHmc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9000/books",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get A Book",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MjIwMzM1MDcsInVzZXJfaWQiOiIyNmE0ZTQwYi1mMzEyLTQ1YjAtYTM3YS04MmZhN2IyYjBmYTIifQ.3oV6m-dL7TGVN3zhiMl5rDncB4wESXo0FNtdKCMbHmc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9000/books/2db84c9a-98b2-4b3f-b2ce-dd192132f8cb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"books",
+						"2db84c9a-98b2-4b3f-b2ce-dd192132f8cb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update a Book",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MjIwMzM1MDcsInVzZXJfaWQiOiIyNmE0ZTQwYi1mMzEyLTQ1YjAtYTM3YS04MmZhN2IyYjBmYTIifQ.3oV6m-dL7TGVN3zhiMl5rDncB4wESXo0FNtdKCMbHmc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"pasuma books\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9000/books/2db84c9a-98b2-4b3f-b2ce-dd192132f8cb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"books",
+						"2db84c9a-98b2-4b3f-b2ce-dd192132f8cb"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete a Book",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MjIwMzM1MDcsInVzZXJfaWQiOiIyNmE0ZTQwYi1mMzEyLTQ1YjAtYTM3YS04MmZhN2IyYjBmYTIifQ.3oV6m-dL7TGVN3zhiMl5rDncB4wESXo0FNtdKCMbHmc",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:9000/books/2db84c9a-98b2-4b3f-b2ce-dd192132f8cb",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9000",
+					"path": [
+						"books",
+						"2db84c9a-98b2-4b3f-b2ce-dd192132f8cb"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
