@@ -56,6 +56,7 @@ func AddBookHandler(addBook db.AddBookFunc) http.HandlerFunc {
 		token, err := internal.GetTokenMetaData(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
+			return 
 		}
 		aID := token.UserID
 		add := workflow.AddBook(addBook)
@@ -117,6 +118,27 @@ func RetrieveBookByIDHandler(retrieveBook db.RetrieveBookByIDFunc, retrieveAutho
 			return
 		}
 		httputils.ServeJSON(book, w)
+	}
+}
+
+//UpdateBookHandler updates a book by its id
+func UpdateBookHandler(updateBook db.UpdateBookFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var br pkg.BookUpdateRequest
+		httputils.JSONToDTO(&br, w, r)
+
+		_, err := internal.GetTokenMetaData(r)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+		}
+		params := httprouter.ParamsFromContext(r.Context())
+		bID := params.ByName(bookID)
+		up := workflow.UpdateBook(updateBook)
+		if err := up(bID, br); err != nil {
+			httputils.ServeError(err, w)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 

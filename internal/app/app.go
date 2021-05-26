@@ -21,6 +21,7 @@ type App struct {
 	RetrieveBooksHandler    http.HandlerFunc
 	DeleteBookByIDHandler   http.HandlerFunc
 	RetrieveBookByIDHandler http.HandlerFunc
+	UpdateBookHandler       http.HandlerFunc
 }
 
 //Handler returns the main handler for this application
@@ -31,6 +32,7 @@ func (a App) Handler() http.HandlerFunc {
 	router.HandlerFunc(http.MethodPost, "/books", a.AddBookHandler)
 	router.HandlerFunc(http.MethodGet, "/books", a.RetrieveBooksHandler)
 	router.HandlerFunc(http.MethodDelete, fmt.Sprintf("/books/:%s", bookID), a.DeleteBookByIDHandler)
+	router.HandlerFunc(http.MethodPut, fmt.Sprintf("/books/:%s", bookID), a.UpdateBookHandler)
 	router.HandlerFunc(http.MethodGet, fmt.Sprintf("/books/:%s", bookID), a.RetrieveBookByIDHandler)
 
 	router.HandlerFunc(http.MethodPost, "/auth", a.AuthenticateHandler)
@@ -50,6 +52,7 @@ type OptionalArgs struct {
 	DeleteBookByID           db.DeleteBookByIDFunc
 	RetrieveAuthor           db.RetrieveAuthorByIDFunc
 	RetrieveBookByID         db.RetrieveBookByIDFunc
+	UpdateBook               db.UpdateBookFunc
 }
 
 //New creates a new instance of the App
@@ -62,6 +65,7 @@ func New(dbProvider mongo.DbProviderFunc, options ...Options) App {
 		DeleteBookByID:           db.DeleteBookByID(dbProvider),
 		RetrieveAuthor:           db.RetrieveAuthorByID(dbProvider),
 		RetrieveBookByID:         db.RetrieveBookByID(dbProvider),
+		UpdateBook:               db.UpdateBook(dbProvider),
 	}
 
 	for _, option := range options {
@@ -74,6 +78,7 @@ func New(dbProvider mongo.DbProviderFunc, options ...Options) App {
 	retrieveBooks := RetrieveBooksHandler(o.RetrieveBooks, o.RetrieveAuthor)
 	deleteBookByID := DeleteBookByIDHandler(o.DeleteBookByID)
 	retrieveBookByID := RetrieveBookByIDHandler(o.RetrieveBookByID, o.RetrieveAuthor)
+	updateBook := UpdateBookHandler(o.UpdateBook)
 
 	return App{
 		AddAuthorHandler:        addAuthor,
@@ -82,5 +87,6 @@ func New(dbProvider mongo.DbProviderFunc, options ...Options) App {
 		RetrieveBooksHandler:    retrieveBooks,
 		DeleteBookByIDHandler:   deleteBookByID,
 		RetrieveBookByIDHandler: retrieveBookByID,
+		UpdateBookHandler:       updateBook,
 	}
 }

@@ -36,6 +36,20 @@ type DeleteBookByIDFunc func(aID, bID string) error
 //RetrieveBookByIDFunc retrieves a book by id
 type RetrieveBookByIDFunc func(bID string) (internal.Book, error)
 
+//UpdateBookFunc updates a book
+type UpdateBookFunc func(bID string, changes internal.BookUpdateRequest) error
+
+//UpdateBook updates by its ID
+func UpdateBook(dbProvider mmuoMongo.DbProviderFunc) UpdateBookFunc {
+	return func(bID string, changes internal.BookUpdateRequest) error {
+		col := mmuoMongo.NewCollection(dbProvider, booksCollection)
+		if err := col.Update(bID, changes); err != nil {
+			return errors.Wrapf(err, "db - failure updating book with id =%s", bID)
+		}
+		return nil
+	}
+}
+
 //AddAuthor adds an author to DB
 func AddAuthor(dbProvider mmuoMongo.DbProviderFunc) AddAuthorFunc {
 	return func(a internal.Author) error {
@@ -102,10 +116,15 @@ func AddBook(dbProvider mmuoMongo.DbProviderFunc) AddBookFunc {
 func RetrieveBooks(dbProvider mmuoMongo.DbProviderFunc) RetrieveBooksFunc {
 	return func(params pkg.QueryParams) ([]internal.Book, error) {
 		col := mmuoMongo.NewCollection(dbProvider, booksCollection)
+
 		filter := bson.M{}
 
 		if params.Title != "" {
-			filter = bson.M{"title": params.Title}
+			filter["title"] = params.Title
+		}
+
+		if params.Description != "" {
+			filter["description"] = params.Description
 		}
 
 		books := []internal.Book{}

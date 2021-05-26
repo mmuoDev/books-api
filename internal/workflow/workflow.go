@@ -30,6 +30,20 @@ type DeleteBookByIDFunc func(aID, bID string) error
 //RetrieveBookByIDFunc retrieves book by id
 type RetrieveBookByIDFunc func(bID string) (pkg.Book, error)
 
+//UpdateBookFunc updates a book
+type UpdateBookFunc func(bID string, r pkg.BookUpdateRequest) error
+
+//UpdateBook updates a book
+func UpdateBook(updateBook db.UpdateBookFunc) UpdateBookFunc {
+	return func(bID string, r pkg.BookUpdateRequest) error {
+		changes := mapping.ToDBBookUpdated(r)
+		if err := updateBook(bID, changes); err != nil {
+			return pkgErr.Wrapf(err, "workflow - unable to update book with id=%s", bID)
+		}
+		return nil
+	}
+}
+
 //AddAuthor adds an author
 func AddAuthor(addAuthor db.AddAuthorFunc) AddAuthorFunc {
 	return func(r pkg.AuthorRequest) error {

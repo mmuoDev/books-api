@@ -17,15 +17,24 @@ type AuthRequest struct {
 type BookRequest struct {
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
-	CoverImage  string  `json:"coverImage"`
+	CoverImage  string  `json:"coverimage"`
 	Price       float64 `json:"price"`
+}
+
+//BookUpdateRequest represents request for updating a book for an author
+type BookUpdateRequest struct {
+	Title       *string  `json:"title,omitempty"`
+	Description *string  `json:"description,omitempty"`
+	CoverImage  *string  `json:"coverimage,omitempty"`
+	Price       *float64 `json:"price,omitempty"`
 }
 
 //Book represent details for a book
 type Book struct {
+	ID          string  `json:"id"`
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
-	CoverImage  string  `json:"coverImage"`
+	CoverImage  string  `json:"coverimage"`
 	Price       float64 `json:"price"`
 	Author      string  `json:"author"`
 }
@@ -38,5 +47,6 @@ type Auth struct {
 
 // QueryParams represents query params for filtering
 type QueryParams struct {
-	Title string `json:"title"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }

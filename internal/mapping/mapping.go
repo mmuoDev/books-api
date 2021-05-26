@@ -61,6 +61,7 @@ func ToDTOBooks(books []internal.Book, author db.RetrieveAuthorByIDFunc) []pkg.B
 	for _, b := range books {
 		a, _ := author(b.AuthorID)
 		bk := pkg.Book{
+			ID:          b.ID.Val(),
 			Title:       b.Title,
 			Description: b.Description,
 			CoverImage:  b.CoverImage,
@@ -75,10 +76,21 @@ func ToDTOBooks(books []internal.Book, author db.RetrieveAuthorByIDFunc) []pkg.B
 //ToDTOBooks maps internal book to DTO
 func ToDTOBook(b internal.Book, author string) pkg.Book {
 	return pkg.Book{
+		ID:          b.ID.Val(),
 		Title:       b.Title,
 		Description: b.Description,
 		CoverImage:  b.CoverImage,
 		Price:       b.Price,
 		Author:      author,
+	}
+}
+
+//ToDBBookUpdated maps book update request to internal book
+func ToDBBookUpdated(r pkg.BookUpdateRequest) internal.BookUpdateRequest {
+	return internal.BookUpdateRequest{
+		Title:       r.Title,
+		Description: r.Description,
+		Price:       r.Price,
+		CoverImage:  r.CoverImage,
 	}
 }
