@@ -1,0 +1,244 @@
+openapi: 3.0.0
+info:
+  title: Books API
+  version: 1.0.0
+  description: APIs to add authors and perform CRUD operations on a books resource
+
+paths:
+  /auth:
+    post:
+      summary: Authenticates an author
+      description: Authenticates an author and generates an access token
+      requestBody:
+        $ref: "#/components/requestBodies/Auth"
+      responses:
+        "401":
+          description: "Unauthorized"
+        "200":
+          $ref: "#/components/responses/AuthResponse"
+  /authors:
+    post:
+      summary: Add an author
+      description: This endpoint allows you sign up an author
+      requestBody:
+        $ref: "#/components/requestBodies/AddAuthor"
+      responses:
+        "201":
+          description: "OK - Created"
+        "401":
+          description: "Unauthorized"
+        "500":
+          description: "Internal Server Error"
+  /books:
+    post:
+      summary: Add a Book
+      description: This endpoint allows you add a book
+      requestBody:
+        $ref: "#/components/requestBodies/AddBook"
+      responses:
+        "201":
+          description: "OK - Created"
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+        "500":
+          description: "Internal Server Error"
+      security:
+        - bearerAuth: []
+    get:
+      summary: Get all books
+      description: Retrieves all books
+      responses:
+        "200":
+          $ref: "#/components/responses/GetBooks"
+        "500":
+          description: "Internal Server Error"
+      parameters:
+        - $ref: "#/components/parameters/title"
+        - $ref: "#/components/parameters/description"
+  /books/{bookId}:
+    delete:
+      summary: Delete a book
+      description: Delete a book
+      responses:
+        "200":
+          description: "OK"
+        "500":
+          description: "Internal Server Error"
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+      parameters:
+        - $ref: "#/components/parameters/bookId"
+      security:
+        - bearerAuth: []
+    get:
+      summary: Get a book
+      description: Retrieve a single book
+      responses:
+        "200":
+          $ref: "#/components/responses/GetBook"
+        "500":
+          description: "Internal Server Error"
+      parameters:
+        - $ref: "#/components/parameters/bookId"
+    put:
+      summary: Update a book
+      description: Updates a single book
+      requestBody:
+        $ref: "#/components/requestBodies/AddBook"
+      responses:
+        "204":
+          description: "OK - No Content"
+        "500":
+          description: "Internal Server Error"
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+      parameters:
+        - $ref: "#/components/parameters/bookId"
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:   
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    bookId:
+      name: bookId
+      in: path
+      description: id of the book
+      required: true
+      schema:
+        type: string
+    title:
+      name: title
+      in: path
+      description: Filter books by title
+      required: false
+      schema:
+        type: string
+    description:
+      name: description
+      in: path
+      description: Filter books by description
+      required: false
+      schema:
+        type: string
+  schemas:
+    AuthResponse:
+      description: A JSON request body containing the information after authenticating an author
+      type: object
+      properties:
+        author_id:
+          type: string
+        access_token:
+          type: string
+    Auth:
+      description: A JSON request body containing the information needed to add an author
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    AddAuthor:
+      description: A JSON request body containing the information needed to add an author
+      type: object
+      properties:
+        pseudonym:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+    AddBook:
+      description: A JSON request body containing the information needed to add a book
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        coverimage:
+          type: string
+          example: https://s3/url-to-image
+    GetBooks:
+      type: array
+      description: All books in the system
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            format: uuid
+            example: d2f9b6fb-b0f6-4b05-8625-031225bd1649
+          title:
+            type: string
+          description:
+            type: string
+          author:
+            type: string
+          price:
+            type: number
+          coverimage:
+            type: string
+    GetBook:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d2f9b6fb-b0f6-4b05-8625-031225bd1649
+        title:
+          type: string
+        description:
+          type: string
+        author:
+          type: string
+        price:
+          type: number
+        coverimage:
+          type: string
+  requestBodies:
+    AddAuthor:
+      description: A JSON request body containing information needed to add an author
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AddAuthor"
+    AddBook:
+      description: A JSON request body containing information needed to add a book
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AddBook"
+    Auth:
+      description: A JSON request body containing information needed to authenticate an author
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Auth"
+  responses:
+    GetBooks:
+      description: A JSON response body representing response from retrieving all books
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetBooks"
+    GetBook:
+      description: A JSON response body representing response from retrieving a book
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetBook"
+    AuthResponse:
+      description: A JSON response body representing response after authenticating a user
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AuthResponse"
+    UnauthorizedError:
+      description: Access token is missing or invalid

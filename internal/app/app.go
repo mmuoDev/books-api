@@ -28,13 +28,17 @@ type App struct {
 func (a App) Handler() http.HandlerFunc {
 	router := httprouter.New()
 
-	router.HandlerFunc(http.MethodPost, "/authors", a.AddAuthorHandler)
+	//books
 	router.HandlerFunc(http.MethodPost, "/books", a.AddBookHandler)
 	router.HandlerFunc(http.MethodGet, "/books", a.RetrieveBooksHandler)
 	router.HandlerFunc(http.MethodDelete, fmt.Sprintf("/books/:%s", bookID), a.DeleteBookByIDHandler)
 	router.HandlerFunc(http.MethodPut, fmt.Sprintf("/books/:%s", bookID), a.UpdateBookHandler)
 	router.HandlerFunc(http.MethodGet, fmt.Sprintf("/books/:%s", bookID), a.RetrieveBookByIDHandler)
 
+	//authors
+	router.HandlerFunc(http.MethodPost, "/authors", a.AddAuthorHandler)
+
+	//auth
 	router.HandlerFunc(http.MethodPost, "/auth", a.AuthenticateHandler)
 
 	return http.HandlerFunc(router.ServeHTTP)

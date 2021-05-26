@@ -92,6 +92,7 @@ func DeleteBookByIDHandler(deleteBook db.DeleteBookByIDFunc) http.HandlerFunc {
 		token, err := internal.GetTokenMetaData(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
+			return
 		}
 		aID := token.UserID
 		params := httprouter.ParamsFromContext(r.Context())
