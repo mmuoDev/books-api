@@ -25,8 +25,9 @@ $ make run
 ``` bash
 $ make test
 ```  
-## More details
 
-These endpoints require the bearer token generated during authenticattion
-- Add Book
-- Delete Book
+### OpenAPI Spec
+The OpenAPI spec for this service can be found in the `open-api-yaml` file. Upload to https://editor.swagger.io/ to view. 
+
+### Postman Collection
+The Postman collection can be found in the `postman` folder

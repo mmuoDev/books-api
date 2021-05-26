@@ -113,14 +113,14 @@ components:
         type: string
     title:
       name: title
-      in: path
+      in: query
       description: Filter books by title
       required: false
       schema:
         type: string
     description:
       name: description
-      in: path
+      in: query
       description: Filter books by description
       required: false
       schema:
