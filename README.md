@@ -1,6 +1,6 @@
 # books-api
 
-This is a books API written with Golang
+APIs to add authors, authenticate authors and perform CRUD operations on a books resource. This was written with Golang and MongoDB
 
 ## Requirements
 - Golang
