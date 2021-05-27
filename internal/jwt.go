@@ -15,7 +15,7 @@ import (
 
 //TokenMetaData represents metadata of the token
 type TokenMetaData struct {
-	UserID     string
+	UserID string
 }
 
 //GenerateJWT generates a token
@@ -39,11 +39,13 @@ func GenerateJWT(id string) (*Token, error) {
 //verifyToken verifies signing mtd
 func verifyToken(r *http.Request) (*jwt.Token, error) {
 	ts, err := getToken(r)
+
 	if err != nil {
 		return nil, pkgErr.Wrap(err, "jwt - Token not found")
 	}
 	token, err := jwt.Parse(ts, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(os.Getenv("JWT_ACCESS_SECRET")), nil
@@ -51,6 +53,7 @@ func verifyToken(r *http.Request) (*jwt.Token, error) {
 	if err != nil {
 		return nil, pkgErr.Wrapf(err, "Invalid token!")
 	}
+
 	return token, nil
 }
 
@@ -87,7 +90,7 @@ func GetTokenMetaData(r *http.Request) (*TokenMetaData, error) {
 			return nil, fmt.Errorf("userID metadata not found in token")
 		}
 		return &TokenMetaData{
-			UserID:     userID,
+			UserID: userID,
 		}, nil
 	}
 	return &TokenMetaData{}, err

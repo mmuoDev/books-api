@@ -16,6 +16,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+const (
+	bookID    = "2db84c9a-98b2-4b3f-b2ce-dd192132f8cb"
+	testToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJleHAiOjE2MjIxMjA0MDUsInVzZXJfaWQiOiIyNmE0ZTQwYi1mMzEyLTQ1YjAtYTM3YS04MmZhN2IyYjBmYTIifQ.UsvAsLxKP2lSrfJf7xl5VerJ1KryPr3dIIaQDEOWtvw"
+)
+
 //mongoDBProvider mocks mongo DB
 func mongoDBProvider() *mongo.Database {
 	return nil
@@ -111,11 +116,62 @@ func TestRetrieveBooksReturns200(t *testing.T) {
 	t.Run("Response Body is as expected", func(t *testing.T) {
 		var (
 			expectedResponse []internal.Book
-			actualResponse []internal.Book
+			actualResponse   []internal.Book
 		)
 		json.NewDecoder(res.Body).Decode(&actualResponse)
 		httputils.FileToStruct(filepath.Join("testdata", "retrieve_books_response.json"), &expectedResponse)
 		assert.Equal(t, expectedResponse, actualResponse)
+	})
+
+}
+
+func TestUpdateBookReturns204(t *testing.T) {
+	updateDBInvoked := false
+	os.Setenv("JWT_ACCESS_SECRET", "T52N6pRxNZDW45UR")
+	mockUpdateBook := func(o *app.OptionalArgs) {
+		o.UpdateBook = func(bID string, changes internal.BookUpdateRequest) error {
+			updateDBInvoked = true
+			t.Run("Book ID is as expected", func(t *testing.T) {
+				assert.Equal(t, bID, bookID)
+			})
+			return nil
+		}
+	}
+
+	mockRetrieveBookByAuthor := func(o *app.OptionalArgs) {
+		o.RetrieveBookByAuthor = func(aID, bID string) (internal.Book, error) {
+			var bRes internal.Book
+			httputils.FileToStruct(filepath.Join("testdata", "retrieve_book_by_author.json"), &bRes)
+
+			return bRes, nil
+		}
+	}
+
+	opts := []app.Options{
+		mockUpdateBook,
+		mockRetrieveBookByAuthor,
+	}
+
+	ap := app.New(mongoDBProvider, opts...)
+	serverURL, cleanUpServer := app.NewTestServer(ap.Handler())
+	defer cleanUpServer()
+
+	var uReq pkg.BookUpdateRequest
+	payload := httputils.FileToStruct(filepath.Join("testdata", "update_book_request.json"), &uReq)
+
+	req, _ := http.NewRequest(http.MethodPut, fmt.Sprintf("%s/books/%s", serverURL, bookID), payload)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", testToken))
+	client := &http.Client{}
+	res, _ := client.Do(req)
+	
+	
+
+	t.Run("HTTP response status is 204", func(t *testing.T) {
+		assert.Equal(t, http.StatusNoContent, res.StatusCode)
+	})
+
+	t.Run("Update db invoked", func(t *testing.T) {
+		assert.True(t, updateDBInvoked)
 	})
 
 }

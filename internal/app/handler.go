@@ -56,7 +56,7 @@ func AddBookHandler(addBook db.AddBookFunc) http.HandlerFunc {
 		token, err := internal.GetTokenMetaData(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			return 
+			return
 		}
 		aID := token.UserID
 		add := workflow.AddBook(addBook)
@@ -101,7 +101,7 @@ func DeleteBookByIDHandler(deleteBook db.DeleteBookByIDFunc, retrieveBook db.Ret
 		b, _ := retrieveBook(token.UserID, bID)
 		if (internal.Book{}) == b {
 			w.WriteHeader(http.StatusUnauthorized)
-			return 
+			return
 		}
 
 		delete := workflow.DeleteBookByID(deleteBook)
@@ -138,15 +138,16 @@ func UpdateBookHandler(updateBook db.UpdateBookFunc, retrieveBook db.RetrieveBoo
 		token, err := internal.GetTokenMetaData(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			return 
+			return
 		}
 		params := httprouter.ParamsFromContext(r.Context())
 		bID := params.ByName(bookID)
 		//
+
 		b, _ := retrieveBook(token.UserID, bID)
 		if (internal.Book{}) == b {
 			w.WriteHeader(http.StatusUnauthorized)
-			return 
+			return
 		}
 
 		up := workflow.UpdateBook(updateBook)
