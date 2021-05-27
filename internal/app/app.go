@@ -57,6 +57,7 @@ type OptionalArgs struct {
 	RetrieveAuthor           db.RetrieveAuthorByIDFunc
 	RetrieveBookByID         db.RetrieveBookByIDFunc
 	UpdateBook               db.UpdateBookFunc
+	RetrieveBookByAuthor     db.RetrieveBookByAuthorIDFunc
 }
 
 //New creates a new instance of the App
@@ -70,6 +71,7 @@ func New(dbProvider mongo.DbProviderFunc, options ...Options) App {
 		RetrieveAuthor:           db.RetrieveAuthorByID(dbProvider),
 		RetrieveBookByID:         db.RetrieveBookByID(dbProvider),
 		UpdateBook:               db.UpdateBook(dbProvider),
+		RetrieveBookByAuthor:     db.RetrieveBookyAuthorID(dbProvider),
 	}
 
 	for _, option := range options {
@@ -80,9 +82,9 @@ func New(dbProvider mongo.DbProviderFunc, options ...Options) App {
 	authenticate := AuthenticateHandler(o.RetrieveAuthorByUsername)
 	addBook := AddBookHandler(o.AddBook)
 	retrieveBooks := RetrieveBooksHandler(o.RetrieveBooks, o.RetrieveAuthor)
-	deleteBookByID := DeleteBookByIDHandler(o.DeleteBookByID)
+	deleteBookByID := DeleteBookByIDHandler(o.DeleteBookByID, o.RetrieveBookByAuthor)
 	retrieveBookByID := RetrieveBookByIDHandler(o.RetrieveBookByID, o.RetrieveAuthor)
-	updateBook := UpdateBookHandler(o.UpdateBook)
+	updateBook := UpdateBookHandler(o.UpdateBook, o.RetrieveBookByAuthor)
 
 	return App{
 		AddAuthorHandler:        addAuthor,

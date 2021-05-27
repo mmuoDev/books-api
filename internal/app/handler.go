@@ -87,7 +87,7 @@ func RetrieveBooksHandler(retrieveBooks db.RetrieveBooksFunc, retrieveAuthor db.
 }
 
 //DeleteBookByIDHandler deletes a book by id
-func DeleteBookByIDHandler(deleteBook db.DeleteBookByIDFunc) http.HandlerFunc {
+func DeleteBookByIDHandler(deleteBook db.DeleteBookByIDFunc, retrieveBook db.RetrieveBookByAuthorIDFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, err := internal.GetTokenMetaData(r)
 		if err != nil {
@@ -97,6 +97,13 @@ func DeleteBookByIDHandler(deleteBook db.DeleteBookByIDFunc) http.HandlerFunc {
 		aID := token.UserID
 		params := httprouter.ParamsFromContext(r.Context())
 		bID := params.ByName(bookID)
+		//
+		b, _ := retrieveBook(token.UserID, bID)
+		if (internal.Book{}) == b {
+			w.WriteHeader(http.StatusUnauthorized)
+			return 
+		}
+
 		delete := workflow.DeleteBookByID(deleteBook)
 		if err := delete(aID, bID); err != nil {
 			httputils.ServeError(err, w)
@@ -123,17 +130,25 @@ func RetrieveBookByIDHandler(retrieveBook db.RetrieveBookByIDFunc, retrieveAutho
 }
 
 //UpdateBookHandler updates a book by its id
-func UpdateBookHandler(updateBook db.UpdateBookFunc) http.HandlerFunc {
+func UpdateBookHandler(updateBook db.UpdateBookFunc, retrieveBook db.RetrieveBookByAuthorIDFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var br pkg.BookUpdateRequest
 		httputils.JSONToDTO(&br, w, r)
 
-		_, err := internal.GetTokenMetaData(r)
+		token, err := internal.GetTokenMetaData(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
+			return 
 		}
 		params := httprouter.ParamsFromContext(r.Context())
 		bID := params.ByName(bookID)
+		//
+		b, _ := retrieveBook(token.UserID, bID)
+		if (internal.Book{}) == b {
+			w.WriteHeader(http.StatusUnauthorized)
+			return 
+		}
+
 		up := workflow.UpdateBook(updateBook)
 		if err := up(bID, br); err != nil {
 			httputils.ServeError(err, w)

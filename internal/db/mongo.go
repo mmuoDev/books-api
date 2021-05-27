@@ -39,6 +39,25 @@ type RetrieveBookByIDFunc func(bID string) (internal.Book, error)
 //UpdateBookFunc updates a book
 type UpdateBookFunc func(bID string, changes internal.BookUpdateRequest) error
 
+//RetrieveBooksByAuthorIDFunc retrieves book by author id
+type RetrieveBookByAuthorIDFunc func(aID, bID string) (internal.Book, error)
+
+//RetrieveBookByAuthorID retrieves a book by the author's id
+func RetrieveBookyAuthorID (dbProvider mmuoMongo.DbProviderFunc) RetrieveBookByAuthorIDFunc {
+	return func(aID, bID string) (internal.Book, error) {
+		filter := bson.D{
+			{"author_id", aID},
+			{"id", bID},
+		}
+		var b internal.Book
+		col := mmuoMongo.NewCollection(dbProvider, booksCollection)
+		if err := col.FindOne(filter, &b); err != nil {
+			return internal.Book{}, errors.Wrapf(err, "db - book with id=%s not found for author=%s", bID, aID)
+		}
+		return b, nil
+	}
+}
+
 //UpdateBook updates by its ID
 func UpdateBook(dbProvider mmuoMongo.DbProviderFunc) UpdateBookFunc {
 	return func(bID string, changes internal.BookUpdateRequest) error {
